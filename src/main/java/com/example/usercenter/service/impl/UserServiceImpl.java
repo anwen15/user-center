@@ -7,15 +7,22 @@ import com.example.usercenter.excepttion.BusinessException;
 import com.example.usercenter.model.domain.User;
 import com.example.usercenter.service.UserService;
 import com.example.usercenter.mapper.UserMapper;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cglib.beans.FixedKeySet;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
@@ -151,6 +158,45 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     public int userlogout(HttpServletRequest request) {
         request.getSession().removeAttribute(USER_LOGIN_STATE);
         return 1;
+    }
+
+    /**
+     * 根据标签查询用户
+     */
+    @Override
+    public List<User> searchuserbytags(List<String> tagnamelist) {
+        if (CollectionUtils.isEmpty(tagnamelist)) {
+            throw new BusinessException(EoorCode.NULL_ERROR);
+        }
+        /**sql查询
+        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+        for(String tagname:tagnamelist){
+            queryWrapper= queryWrapper.like("tags",tagname);
+        }
+        List<User> userlist=userMapper.selectList(queryWrapper);
+         **/
+        /**
+         * 内存查询
+         */
+        QueryWrapper<User> queryWrapper=new QueryWrapper<>();
+        List<User> userlist=userMapper.selectList(queryWrapper);
+        Gson gson=new Gson();
+        return userlist.stream().filter(user -> {
+            String tags = user.getTags();
+            if (StringUtils.isBlank(tags)) {
+                return false;
+            }
+            //反序列化
+            Set<User> tagslist= gson.fromJson(tags,new TypeToken<Set<String>>(){}.getType());
+            for( String tagname:tagnamelist){
+                if(!tagslist.contains(tagname)) {
+                    return false;
+                }
+            }
+            return true;
+        }).map(this::getSaftyUser).collect(Collectors.toList());
+        //改为安全用户
+        //return userlist.stream().map(this::getSaftyUser).collect(Collectors.toList());
     }
 }
 

@@ -54,6 +54,8 @@ public class User implements Serializable {
      */
     private String email;
 
+    private String tags;
+
     /**
      * 状态 0 - 正
 常
