@@ -18,7 +18,9 @@ import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -161,7 +163,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     }
 
     /**
-     * 根据标签查询用户
+     * 根据标签查询用户(内存查询)
      */
     @Override
     public List<User> searchuserbytags(List<String> tagnamelist) {
@@ -175,6 +177,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         }
         List<User> userlist=userMapper.selectList(queryWrapper);
          **/
+
         /**
          * 内存查询
          */
@@ -188,6 +191,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             //反序列化
             Set<User> tagslist= gson.fromJson(tags,new TypeToken<Set<String>>(){}.getType());
+            tagslist= Optional.ofNullable(tagslist).orElse(new HashSet<>());
+
+
             for( String tagname:tagnamelist){
                 if(!tagslist.contains(tagname)) {
                     return false;
