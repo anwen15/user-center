@@ -7,6 +7,9 @@ spring:
   #session失效时间
   session:
     timeout: 86400
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher #springboot2.6以上pathmatch策略为pathpattern，之前的版本为ant_path_matcher,需要手动改回
 server:
   port: 8080
   servlet:
