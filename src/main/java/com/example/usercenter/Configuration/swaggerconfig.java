@@ -39,7 +39,7 @@ public class swaggerconfig {
                 .title("用户中心")
                 .description("测试")
                 .termsOfServiceUrl("https://github.com/anwen15")
-                .contact(new Contact("","", ""))//信息
+                .contact(new Contact("anwen","", ""))//信息
                 .version("1.0")
                 .build();
     }
