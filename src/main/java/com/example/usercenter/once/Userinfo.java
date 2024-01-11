@@ -14,6 +14,6 @@ public class Userinfo {
     @ExcelProperty("字符串标题")
     private String string;
 
-    @ExcelProperty("日期标题")
+    @ExcelProperty("日期")
     private Date date;
 }
