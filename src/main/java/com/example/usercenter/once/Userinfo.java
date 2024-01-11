@@ -6,7 +6,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class userinfo {
+public class Userinfo {
 
     @ExcelProperty("成员编号")
     private String planetCode;
