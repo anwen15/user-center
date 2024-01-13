@@ -11,9 +11,6 @@ public class Userinfo {
     @ExcelProperty("成员编号")
     private String planetCode;
 
-    @ExcelProperty("字符串标题")
-    private String string;
-
     @ExcelProperty("成员昵称")
     private String username;
 }
