@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 public class Importdata {
     public static void main(String[] args) {
         //Excel数据文件放在自己电脑上，能够找到的路径
-        String fileName = "C:\\Users\\25073\\Desktop\\testExcel.xlsx";
+        String fileName = "C:\\Users\\nicefang\\Downloads\\testExcel.xlsx";
         // 这里 需要指定读用哪个class去读，然后读取第一个sheet 同步读取会自动finish
         List<Userinfo> userInfoList =
                 EasyExcel.read(fileName).head(Userinfo.class).sheet().doReadSync();
