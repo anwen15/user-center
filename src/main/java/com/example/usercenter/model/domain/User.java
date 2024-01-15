@@ -1,10 +1,10 @@
 package com.example.usercenter.model.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 
@@ -40,6 +40,11 @@ public class User implements Serializable {
     private Integer gender;
 
     /**
+     * 个人简介
+     */
+    private String profile;
+
+    /**
      * 密码
      */
     private String userPassword;
@@ -53,8 +58,6 @@ public class User implements Serializable {
      * 邮箱
      */
     private String email;
-
-    private String tags;
 
     /**
      * 状态 0 - 正
@@ -89,6 +92,11 @@ public class User implements Serializable {
      * 星球编号
      */
     private String planetCode;
+
+    /**
+     * 标签列表
+     */
+    private String tags;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

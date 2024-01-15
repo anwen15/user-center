@@ -10,6 +10,7 @@ import com.example.usercenter.model.request.UserLoginRequest;
 import com.example.usercenter.model.request.UserRegisterRequest;
 import com.example.usercenter.service.UserService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,6 +23,7 @@ import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
 @RestController
 @RequestMapping("/user")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class UserController {
 
     @Resource
@@ -95,16 +97,26 @@ public class UserController {
         return ResultUtils.success(collect);
     }
 
+    @GetMapping("/search/tags")
+    public BaseResponse<List<User>> searchUsersByTags(@RequestParam(required = false) List<String> tagNameList) {
+        if (CollectionUtils.isEmpty(tagNameList)) {
+            throw  new BusinessException(EoorCode.NULL_ERROR,"标签列表为空");
+        }
+        List<User> userList = userService.searchuserbytags(tagNameList);
+        return ResultUtils.success(userList);
+    }
+
     @PostMapping("/delete")
-    public BaseResponse<Boolean> delete(@RequestBody long id,HttpServletRequest request) {
+    public BaseResponse<Boolean> delete(@RequestBody long id, HttpServletRequest request) {
+        //管理员功能
         if (!isAdmin(request)) {
-            throw new BusinessException(EoorCode.NO_AUTH,"网络连接无响应");
+            throw new BusinessException(EoorCode.NO_AUTH, "网络连接无响应");
         }
         if (id <= 0) {
-            throw new BusinessException(EoorCode.PARAMS_ERROR,"无用户");
+            throw new BusinessException(EoorCode.PARAMS_ERROR, "无用户");
         }
         boolean removeById = userService.removeById(id);
-        return  ResultUtils.success(removeById);
+        return ResultUtils.success(removeById);
     }
 
     /**

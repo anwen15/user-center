@@ -145,6 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         saftyuser.setId(user.getId());
         saftyuser.setUsername(user.getUsername());
         saftyuser.setUserAccount(user.getUserAccount());
+        saftyuser.setGender(user.getGender());
         saftyuser.setAvatarUrl(user.getAvatarUrl());
         saftyuser.setPhone(user.getPhone());
         saftyuser.setEmail(user.getEmail());
@@ -153,6 +154,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         saftyuser.setUpdateTime(user.getUpdateTime());
         saftyuser.setPlanetCode(user.getPlanetCode());
         saftyuser.setUserRole(user.getUserRole());
+        saftyuser.setTags(user.getTags());
         return saftyuser;
     }
 
@@ -185,22 +187,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         List<User> userlist=userMapper.selectList(queryWrapper);
         Gson gson=new Gson();
         return userlist.stream().filter(user -> {
-            String tags = user.getTags();
-            if (StringUtils.isBlank(tags)) {
-                return false;
-            }
-            //反序列化
-            Set<User> tagslist= gson.fromJson(tags,new TypeToken<Set<String>>(){}.getType());
-            tagslist= Optional.ofNullable(tagslist).orElse(new HashSet<>());
-
-
-            for( String tagname:tagnamelist){
-                if(!tagslist.contains(tagname)) {
+            String tagsStr = user.getTags();
+            Set<String> tempTagNameSet = gson.fromJson(tagsStr, new TypeToken<Set<String>>() {
+            }.getType());
+            tempTagNameSet = Optional.ofNullable(tempTagNameSet).orElse(new HashSet<>());
+            for (String tagName : tagnamelist) {
+                if (!tempTagNameSet.contains(tagName)) {
                     return false;
                 }
             }
             return true;
         }).map(this::getSaftyUser).collect(Collectors.toList());
+
         //改为安全用户
         //return userlist.stream().map(this::getSaftyUser).collect(Collectors.toList());
     }
