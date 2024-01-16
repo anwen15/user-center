@@ -48,7 +48,7 @@ public class UserController {
     @PostMapping("/login")
     public BaseResponse<User> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
-            throw new BusinessException(EoorCode.NULL_ERROR,"网络连接无响应");
+            throw new BusinessException(EoorCode.NULL_ERROR,"无网络连接");
         }
         String userAccount = userLoginRequest.getUserAccount();
         String userpassword = userLoginRequest.getUserPassword();
@@ -62,7 +62,7 @@ public class UserController {
     @PostMapping("/logout")
     public BaseResponse<Integer> userLogout(HttpServletRequest request) {
         if (request == null) {
-            throw new BusinessException(EoorCode.SYSTEM_ERROR,"网络连接无响应");
+            throw new BusinessException(EoorCode.SYSTEM_ERROR,"无网络连接");
         }
 
         int userlogout = userService.userlogout(request);
@@ -76,7 +76,6 @@ public class UserController {
             throw new BusinessException(EoorCode.NULL_ERROR,"当前用户信息为空");
         }
         Long id = currentuser.getId();
-        // TODO: 5/11/2023 校验用户是否合法 
         User byId = userService.getById(id);
         User saftyUser = userService.getSaftyUser(byId);
         return ResultUtils.success(saftyUser);
@@ -86,7 +85,7 @@ public class UserController {
     @GetMapping("/search")
     public BaseResponse<List<User>> searchUser(String username,HttpServletRequest request) {
         //管理员功能
-        if (!isAdmin(request)) {
+        if (!userService.isAdmin(request)) {
             throw new BusinessException(EoorCode.PARAMS_ERROR,"权限不足");
         }
         QueryWrapper<User> queryWrapper=new QueryWrapper<>();
@@ -109,7 +108,7 @@ public class UserController {
     @PostMapping("/delete")
     public BaseResponse<Boolean> delete(@RequestBody long id, HttpServletRequest request) {
         //管理员功能
-        if (!isAdmin(request)) {
+        if (!userService.isAdmin(request)) {
             throw new BusinessException(EoorCode.NO_AUTH, "网络连接无响应");
         }
         if (id <= 0) {
@@ -119,15 +118,20 @@ public class UserController {
         return ResultUtils.success(removeById);
     }
 
+    @PostMapping("/update")
+    public BaseResponse<Integer> update(@RequestBody User user, HttpServletRequest request) {
+        if (user == null) {
+            throw new BusinessException(EoorCode.PARAMS_ERROR, "无用户");
+        }
+        User loninUser = userService.getLoninUser(request);
+        int result = userService.updateUser(user, loninUser);
+        return  ResultUtils.success(result);
+    }
+
     /**
      * 验证是否为管理员
      * @param request
      * @return
      */
-    private boolean isAdmin(HttpServletRequest request) {
-        //管理员功能
-        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User user=(User) attribute;
-        return user!=null&&user.getUserRole()==ADMIN_ROLE;
-    }
+
 }

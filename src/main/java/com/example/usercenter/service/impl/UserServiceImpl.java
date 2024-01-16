@@ -26,6 +26,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.example.usercenter.contant.UserContant.ADMIN_ROLE;
 import static com.example.usercenter.contant.UserContant.USER_LOGIN_STATE;
 
 /**
@@ -60,7 +61,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(EoorCode.PARAMS_ERROR ,"长度过长");
         }
         //校验账户不能包含特殊字符
-        String validRule = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%…… &*（）——+|{}【】‘；：”“’。，、？]";
+        String validRule = "[`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%…… &（）——+|{}【】‘；：”“’。，、？]";
         Matcher matcher = Pattern.compile(validRule).matcher(userAccount);
         // 如果包含非法字符,则返回
         if(matcher.find()){
@@ -198,9 +199,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             }
             return true;
         }).map(this::getSaftyUser).collect(Collectors.toList());
+    }
 
-        //改为安全用户
-        //return userlist.stream().map(this::getSaftyUser).collect(Collectors.toList());
+    @Override
+    public boolean isAdmin(HttpServletRequest request) {
+
+        //管理员功能
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        User user = (User) attribute;
+        return user != null && user.getUserRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public boolean isAdmin(User user) {
+        return user != null && user.getUserRole() == ADMIN_ROLE;
+    }
+
+    @Override
+    public int updateUser(User user, User loginuser) {
+        long userid=user.getId();
+        if (userid<=0){
+            throw new BusinessException(EoorCode.PARAMS_ERROR,"用户id不合法");
+        }
+        //管理员可更改件任何人的
+        if(!isAdmin(loginuser)&&userid!=loginuser.getId()){
+            throw new BusinessException(EoorCode.NO_AUTH,"无权限");
+        }
+        User user1 = userMapper.selectById(userid);
+        if (user1==null){
+            throw new BusinessException(EoorCode.PARAMS_ERROR,"用户不存在");
+        }
+        return userMapper.updateById(user);
+    }
+
+    @Override
+    public User getLoninUser(HttpServletRequest request) {
+        if (request == null) {
+            throw new BusinessException(EoorCode.PARAMS_ERROR, "无连接");
+        }
+        Object attribute = request.getSession().getAttribute(USER_LOGIN_STATE);
+        if (attribute == null) {
+            throw new BusinessException(EoorCode.NOT_LOGIN, "未登录");
+        }
+        return (User) attribute;
     }
 }
 
