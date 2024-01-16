@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 @SpringBootApplication
-@MapperScan("com/example/usercenter/mapper")
+@MapperScan("com.example.usercenter.mapper")
 public class UserCenterApplication {
 
     public static void main(String[] args) {
